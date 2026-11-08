@@ -717,6 +717,59 @@ After confirming the VM boots, shut it down cleanly and back up:
 Keep backups outside the VM's active storage directory. Do not copy a
 running VM's VHDX as if it were a consistent backup.
 
+### Optional: iOS device wireless debugging
+
+Hyper-V cannot pass a USB-connected iPhone or iPad through to the macOS
+guest. Instead, use Xcode's network pairing (Xcode 15+ with iOS 17+) to
+install, run, and debug apps over Wi-Fi.
+
+**1. Move the VM to an external (bridged) switch.** The VM creation
+script connects the VM to the NAT'd `Default Switch`, which does not
+pass the Bonjour/mDNS traffic Xcode needs to discover devices. On the
+Windows host, in an elevated PowerShell session, find the name of the
+connected physical adapter:
+
+``` powershell
+Get-NetAdapter -Physical | Where-Object Status -eq 'Up' | Select-Object Name, InterfaceDescription, Status
+```
+
+Shut the VM down, then create the external switch with the value from
+the **Name** column and attach the VM to it:
+
+``` powershell
+New-VMSwitch -Name "External" -NetAdapterName "Wi-Fi" -AllowManagementOS $true
+Connect-VMNetworkAdapter -VMName "macOS" -SwitchName "External"
+```
+
+Ethernet bridges more reliably than Wi-Fi; some Wi-Fi drivers do not
+bridge cleanly. After booting, the VM should have an IP address on the
+same subnet as the device.
+
+**2. Prepare the device.**
+
+-   Enable Settings → Privacy & Security → **Developer Mode** (the
+    device restarts).
+-   Join the same Wi-Fi network/subnet as the VM and keep the device
+    unlocked.
+
+**3. Pair in Xcode.**
+
+-   Open Window → **Devices and Simulators** in the macOS guest.
+-   Select the discovered device, click **Pair**, and enter the code
+    shown on the device.
+-   Choose the device as the run destination and build. Sign in under
+    Xcode → Settings → Accounts for code signing.
+
+**Notes:**
+
+-   The first connection is slow while Xcode copies the device's debug
+    symbols.
+-   If the device does not appear, mDNS is usually not reaching the VM:
+    the VM is still on `Default Switch`, the Wi-Fi network uses
+    client/AP isolation, or the device is on a different VLAN.
+-   Work that strictly requires a cable (firmware restore, some
+    accessory development) still needs a physical Mac.
+
 ------------------------------------------------------------------------
 
 ## 13. Troubleshooting reference
