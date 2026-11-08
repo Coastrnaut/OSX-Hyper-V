@@ -195,6 +195,11 @@ Booter:
 ################################################################################
 
 Kernel:
+  # Spoof CPU as Comet Lake for Intel Tiger Lake (11th Gen) and newer
+  # (host: i9-14900K / Raptor Lake Refresh).
+  Emulate:
+    Cpuid1Data:             Data    | <55 06 0A 00 00 00 00 00 00 00 00 00 00 00 00 00>
+    Cpuid1Mask:             Data    | <FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00>
   Quirks:
     # Provides the correct TSC and FSB values to the kernel, as well as disables
     # CPU topology validation (10.8+)
