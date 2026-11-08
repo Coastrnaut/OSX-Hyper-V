@@ -29,41 +29,41 @@ dependencies:
   Kexts:
     Lilu:
       build: DEBUG
-      version: 1.7.2
-      url: 'https://github.com/dortania/build-repo/releases/download/Lilu-161537e/Lilu-1.7.2-DEBUG.zip'
-      resolution: 'acidanthera/Lilu@github:1.7.2#commit=161537ec43a19abf38adb44543ded273305d7bf0'
+      version: 1.7.3
+      url: 'https://github.com/dortania/build-repo/releases/download/Lilu-0249c3a/Lilu-1.7.3-DEBUG.zip'
+      resolution: 'acidanthera/Lilu@github:1.7.3#commit=0249c3a918c68a43891350f35fded615b1575776'
       specifier: 'acidanthera/Lilu@github'
       kind: Kext
-      revision: '{ SHA1: 161537ec43a19abf38adb44543ded273305d7bf0 }'
+      revision: '{ SHA1: 0249c3a918c68a43891350f35fded615b1575776 }'
     MacHyperVSupport:
       build: DEBUG
-      version: 0.9.9
-      url: 'https://github.com/dortania/build-repo/releases/download/MacHyperVSupport-8b2cc05/MacHyperVSupport-0.9.9-DEBUG.zip'
-      resolution: 'acidanthera/MacHyperVSupport@github:0.9.9#commit=8b2cc05e260b53411c45d40ed4a24afab05f858a'
+      version: 1.0.1
+      url: 'https://github.com/dortania/build-repo/releases/download/MacHyperVSupport-cafcd34/MacHyperVSupport-1.0.1-DEBUG.zip'
+      resolution: 'acidanthera/MacHyperVSupport@github:1.0.1#commit=cafcd34daea5e58633112a1e63cef1f07bbc8404'
       specifier: 'acidanthera/MacHyperVSupport@github'
       kind: Kext
-      revision: '{ SHA1: 8b2cc05e260b53411c45d40ed4a24afab05f858a }'
+      revision: '{ SHA1: cafcd34daea5e58633112a1e63cef1f07bbc8404 }'
     VirtualSMC:
       build: DEBUG
-      version: 1.3.7
-      url: 'https://github.com/dortania/build-repo/releases/download/VirtualSMC-dbd1ae1/VirtualSMC-1.3.7-DEBUG.zip'
-      resolution: 'acidanthera/VirtualSMC@github:1.3.7#commit=dbd1ae1ee5adc7f2debd9311bf28ca2902d1bfcc'
+      version: 1.3.9
+      url: 'https://github.com/dortania/build-repo/releases/download/VirtualSMC-b5c62c2/VirtualSMC-1.3.9-DEBUG.zip'
+      resolution: 'acidanthera/VirtualSMC@github:1.3.9#commit=b5c62c2311540c529c00996d0d9cec33f8e571c9'
       specifier: 'acidanthera/VirtualSMC@github'
       kind: Kext
-      revision: '{ SHA1: dbd1ae1ee5adc7f2debd9311bf28ca2902d1bfcc }'
+      revision: '{ SHA1: b5c62c2311540c529c00996d0d9cec33f8e571c9 }'
   OpenCorePkg:
     OcBinaryData:
       build: DEBUG
-      url: 'https://github.com/acidanthera/OcBinaryData/archive/e74e533d8f89c1d5014cfb47c185502bf415741f.tar.gz'
-      resolution: 'acidanthera/OcBinaryData@github#commit=e74e533d8f89c1d5014cfb47c185502bf415741f'
+      url: 'https://github.com/acidanthera/OcBinaryData/archive/640e7e9240938f2529e725351e1e1150dc3569db.tar.gz'
+      resolution: 'acidanthera/OcBinaryData@github#commit=640e7e9240938f2529e725351e1e1150dc3569db'
       specifier: 'acidanthera/OcBinaryData@github:latest'
       kind: Binary
-      revision: '{ SHA1: e74e533d8f89c1d5014cfb47c185502bf415741f }'
+      revision: '{ SHA1: 640e7e9240938f2529e725351e1e1150dc3569db }'
     OpenCore:
       build: DEBUG
-      version: 1.0.6
-      url: 'https://github.com/acidanthera/OpenCorePkg/releases/download/1.0.6/OpenCore-1.0.6-DEBUG.zip'
-      resolution: 'acidanthera/OpenCorePkg@github:1.0.6#commit=64e3b5811ee17804cc04236618dc968ca57378a6'
+      version: 1.0.8
+      url: 'https://github.com/acidanthera/OpenCorePkg/releases/download/1.0.8/OpenCore-1.0.8-DEBUG.zip'
+      resolution: 'acidanthera/OpenCorePkg@github:1.0.8#commit=6fe4d15cb66596d99d8cfedce69d8fc6dad71886'
       specifier: 'acidanthera/OpenCorePkg@github:latest'
       kind: Binary
-      revision: '{ SHA1: 64e3b5811ee17804cc04236618dc968ca57378a6 }'
+      revision: '{ SHA1: 6fe4d15cb66596d99d8cfedce69d8fc6dad71886 }'

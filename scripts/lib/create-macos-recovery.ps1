@@ -51,15 +51,20 @@ switch ($version)
   "14"    { $b="Mac-827FAC58A8FDFA22"; $m="00000000000000000"; }
   # Sequoia (15)
   "15"    { $b="Mac-7BA5B2D9E42DDD94"; $m="00000000000000000"; }
+  # Tahoe (26) - requires '-os latest' to receive the newest recovery image
+  "26"    { $b="Mac-CFF7D910A743CAAF"; $m="00000000000000000"; $os="latest"; }
   # Latest (defaults to Sequoia 15.6)
   Default { $b="Mac-CFF7D910A743CAAF"; $m="00000000000000000"; }
 }
+
+# Optional macrecovery.py '-os' argument (e.g. 'latest' for Tahoe)
+$osArg = if ($os) { "-os $os " } else { "" }
 
 # Run macrecovery.py script
 # & python.exe "$macrecovery" -b "$b" -m "$m" -o "$outdir" download
 icm `
   -ScriptBlock $([Scriptblock]::Create($(iwr 'https://raw.githubusercontent.com/Qonfused/OCE-Build/main/ci/bootstrap.ps1'))) `
-  -ArgumentList (@("-e $macrecovery -b $b -m $m -o $outdir download"))
+  -ArgumentList (@("-e $macrecovery -b $b -m $m $osArg-o $outdir download"))
 
 # Check if the outdir was created
 if (-not (Test-Path -Path $outdir)) {
