@@ -881,6 +881,136 @@ Do not claim a check passed unless you have evidence for it.
 
 ------------------------------------------------------------------------
 
+## 17. Installation record (2026-11-07)
+
+This section records the parameters and settings used for an actual
+installation following this runbook. Paths use `$env:USERPROFILE` in
+place of the user profile directory.
+
+### Host
+
+  Item                        Value
+  --------------------------- ---------------------------------------------
+  Windows                     Windows 11 Pro, build 26300
+  CPU                         Intel Core i9-14900K (24 cores / 32 threads)
+  RAM                         64 GB
+  Storage                     C: NTFS, ~2.9 TB free
+  PowerShell                  Windows PowerShell 5.1.26100
+  Git / Python                2.55.0 / 3.10.11
+  Hyper-V                     Enabled with
+                              `Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All`,
+                              then rebooted
+
+`Win32_Processor.VirtualizationFirmwareEnabled` reported `False` before
+Hyper-V was enabled. This was because Windows virtualization-based
+security (HVCI) was already running a hypervisor. It did not mean
+virtualization was disabled in firmware.
+
+### OpenCore configuration change
+
+The i9-14900K is newer than Tiger Lake, so the Comet Lake CPUID spoof
+from the project README was added to `src/config.yml`, in the
+"Boot fixes" `Kernel:` block:
+
+``` yaml
+Kernel:
+  # Spoof CPU as Comet Lake for Intel Tiger Lake (11th Gen) and newer
+  # (host: i9-14900K / Raptor Lake Refresh).
+  Emulate:
+    Cpuid1Data:             Data    | <55 06 0A 00 00 00 00 00 00 00 00 00 00 00 00 00>
+    Cpuid1Mask:             Data    | <FF FF FF FF 00 00 00 00 00 00 00 00 00 00 00 00>
+  Quirks:
+    ProvideCurrentCpuInfo:  Boolean | true
+```
+
+No AMD patches (`amd.ps1`) were needed, and no `.serialdata` file was
+used.
+
+### EFI build
+
+``` powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass `
+    -File C:\GIT\OSX-Hyper-V\scripts\build.ps1 `
+    -pwd C:\GIT\OSX-Hyper-V
+```
+
+-   **Always pass `-pwd` explicitly under Windows PowerShell 5.1.**
+    `build.ps1` uses `[CmdletBinding()]`, and in PowerShell 5.1 that
+    leaves `$PSScriptRoot` empty when the default value of `-pwd` is
+    calculated. The default then becomes `C:\`, so the OCE-Build CLI
+    runs as `ocebuild.exe build -c C:\ -p config.yml` and scans the
+    entire drive. It looks hung, using one full CPU core and writing
+    nothing. The VM scripts under `dist/Scripts/` don't use
+    `CmdletBinding`, so their defaults resolve correctly.
+-   **Remote code:** the build downloads and runs
+    `Qonfused/OCE-Build/main/ci/bootstrap.ps1`. That script downloads
+    and runs the unpinned **`nightly`** `ocebuild.exe` release.
+-   **Result:** OpenCore 1.0.6, with `dist/` containing `EFI/`,
+    `Scripts/`, `Tools/`, `Utilities/` and `Docs/`. This version of
+    the build does **not** create `dist/EFI.vhdx`; the VM creation
+    script creates the EFI disk.
+-   **Validation:** `dist\Utilities\ocvalidate\ocvalidate.exe
+    dist\EFI\OC\config.plist` reported "No issues found".
+    `Cpuid1Data` in the final plist is `VQYKAAAAAAAAAAAAAAAAAA==`.
+
+### VM creation
+
+The script was run elevated through a wrapper so that a transcript
+could be captured:
+
+``` powershell
+Start-Transcript -Path .\create-vm.log -Force
+& 'C:\GIT\OSX-Hyper-V\dist\Scripts\create-virtual-machine.ps1' `
+    -pwd 'C:\GIT\OSX-Hyper-V\dist' `
+    -name 'macOS' `
+    -version 15 `
+    -cpu 8 `
+    -ram 16 `
+    -size 256
+Stop-Transcript
+```
+
+  Parameter    Value                              Notes
+  ------------ ---------------------------------- ---------------------------------------
+  `-pwd`       `C:\GIT\OSX-Hyper-V\dist`          Passed explicitly as a precaution
+  `-name`      `macOS`                            VM name and folder name
+  `-version`   `15`                               macOS Sequoia (board ID `Mac-7BA5B2D9E42DDD94`)
+  `-cpu`       `8`                                Virtual processors
+  `-ram`       `16`                               Startup memory in GB
+  `-size`      `256`                              macOS disk in GB (room for Xcode)
+  `-outdir`    *(default)*                        `$env:USERPROFILE\Documents\Hyper-V`
+
+The recovery download triggers an `Invoke-WebRequest` script-parsing
+security prompt in Windows PowerShell 5.1. Answer it in the elevated
+console. The download used OpenCore's `macrecovery.py` against
+Apple's recovery servers and produced `BaseSystem.dmg` (884 MB) and
+`BaseSystem.chunklist`. Both were copied to
+`com.apple.recovery.boot/` on the EFI disk. VM creation took about
+2 minutes.
+
+### Resulting VM settings (verified with Hyper-V cmdlets)
+
+  Setting                 Value
+  ----------------------- ----------------------------------------------------------
+  Name                    `macOS`
+  Location                `$env:USERPROFILE\Documents\Hyper-V\macOS\`
+  Generation              2
+  Virtual processors      8
+  Startup memory          16 GB
+  Dynamic memory          **Enabled** (script default; kept on deliberately)
+  Automatic checkpoints   Disabled
+  Secure Boot (guest)     Off
+  SCSI 0:0                `EFI.vhdx` (FAT32, `EFI/`, `Scripts/`, `Tools/`, `com.apple.recovery.boot/`)
+  SCSI 0:1                `macOS.vhdx`, dynamic, 256 GB
+  Boot order              SCSI 0:0 (EFI) → Network → SCSI 0:1
+  Network adapter         `Default Switch`
+
+If you see memory-related freezes or errors in the guest, the first
+thing to try is disabling dynamic memory (VM **Settings → Memory**,
+with the VM off).
+
+------------------------------------------------------------------------
+
 **Maintenance note:** This guide is based on the repository's published
 README and documentation available at the time it was prepared. The
 repository can change. Before executing commands, compare this guide
